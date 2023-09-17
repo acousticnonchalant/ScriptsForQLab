@@ -8,7 +8,7 @@ This script will make a fade out cue for a selection of cues and then select the
 See below for a fade time variable which you can set if you want to bypass the dialog.
 You should put this script into a script cue and trigger it with a hotkey from a Stream Deck, or give it a unique number and trigger it from Companion.
 
-File Name: QLab 5 - Make Fade In From Selected Cues
+File Name: QLab 5 - Make Fade Out From Selected Cues
 
 Written by Chase Elison 
 chase@chaseelison.com
