@@ -7,6 +7,8 @@ Timeline Group from Selected Cues
 This script will make a timeline group out of selected cues and copy the name, number and color from the first cue in the list.
 You should put this script into a script cue and trigger it with a hotkey from a Stream Deck, or give it a unique number and trigger it from Companion.
 
+File Name: Timeline Group From Selected Cues
+
 Written by Chase Elison 
 chase@chaseelison.com
 
