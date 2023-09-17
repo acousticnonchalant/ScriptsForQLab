@@ -486,5 +486,5 @@ v5.1 Added support for cue list 0, which if I recall correctly, is how Element c
 v5.0.11 Changed the version numbering just to annoy people, and made changes to allow for Qlab 5.0.9's added user options in their library definitions.
 9/16/2023 - No change to code. No longer doing version numbers.
 9/17/2023 - Added logic earlier on to validate whether or not the network cues are set up correctly. Added logic to see if a cue list already exists and use that same one if possible. Added memo cue for logging when cues were generated.
-
+ 
 *)
