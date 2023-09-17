@@ -1,6 +1,6 @@
 (* 
 
-9/16/2023
+9/17/2023
 Tested with EOS 3.2.3 and QLab v5.2.3 on macOS Ventura 13.5.2
 
 ETC EOS Control Cue Generator for QLab via CSV
@@ -54,10 +54,10 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 	set isVersion5 to (item 1 of versionNumber is "5") as boolean
 	set isNewVersionWithUser to false as boolean
 	-- By default, it will not add user data
-	if (item 2 of versionNumber is "0") and (item 3 of versionNumber as integer ≥ 9) then
+	if (item 2 of versionNumber is "0") and (item 3 of versionNumber as integer is 9) then
 		-- Is build .0.9 or higher, therefore will add user info in cues.
 		set isNewVersionWithUser to true
-	else if item 2 of versionNumber as integer ≥ 1 then
+	else if item 2 of versionNumber as integer is 1 then
 		-- Is greater than build .1.x, it will be presumed that newer versions will follow the same format
 		-- At time of writing this, 11/28/2022, QLab 5.0.10 is newest version.
 		set isNewVersionWithUser to true
@@ -101,14 +101,36 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 		display dialog qlabCueType & " Destination (Patch)? Leave as 1 if you have only one destination, which is the console." with icon 1 default answer "1"
 		try
 			set qlabCuePatch to (text returned of result) as integer
-			if (qlabCuePatch ≤ 0) or (qlabCuePatch > 16) then
+			if (qlabCuePatch is 0) or (qlabCuePatch > 16) then
 				display dialog "ERROR - must be a number between 1 and 16" with icon 1 buttons {"OK"} default button 1
 				return
 			end if
-		on error
-			display dialog "ERROR - must be a number between 1 and 16" with icon 1 buttons {"OK"} default button 1
+		on error the errorMessage
+			display dialog "ERROR - " & errorMessage with icon 1 buttons {"OK"} default button 1
 			return
 		end try
+	end if
+	
+	--9/17/23 Validate EOS network cue
+	if qlabCueType is "Network" then
+		make type "network"
+		set networkTestingCue to last item of (selected as list)
+		set network patch number of networkTestingCue to qlabCuePatch
+		if isNewVersionWithUser then
+			set networkTestingCueParameterValues to {"cue", "yes", 2, "fireInList", 3, 4}
+		else
+			set networkTestingCueParameterValues to {"cue", "fireInList", 3, 4}
+		end if
+		set parameter values of networkTestingCue to networkTestingCueParameterValues
+		set networkCueTestResult to count of parameter values of networkTestingCue
+		set patchName to network patch name of networkTestingCue
+		tell parent of networkTestingCue
+			delete cue id (uniqueID of networkTestingCue)
+		end tell
+		if networkCueTestResult is not (count of networkTestingCueParameterValues) then
+			display dialog "It appears your patch is not set correctly. Please first check that the patch you have chosen, network patch \"" & patchName & "\" is correct. If it is, please go to your settings (Gear icon in the bottom right of QLab) and under network, change the type of \"" & patchName & "\" to \"ETC Eos Family\"." with title "EOS CSV Cue Generator" with icon 1 buttons "OK" default button "OK"
+			return
+		end if
 	end if
 	
 	if qlabCueType is "MIDI" and (qlabMidiDeviceID < 0 or qlabMidiDeviceID > 127) then
@@ -119,8 +141,8 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 				display dialog "ERROR - must be a number between 0 and 127" with icon 1 buttons {"OK"} default button 1
 				return
 			end if
-		on error
-			display dialog "ERROR - must be a number between 0 and 127" with icon 1 buttons {"OK"} default button 1
+		on error the errorMessage
+			display dialog "ERROR - " & errorMessage with icon 1 buttons {"OK"} default button 1
 			return
 		end try
 	end if
@@ -140,18 +162,23 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 		set useCueNumbers to button returned of (display dialog "Do you want to use EOS cue numbers as QLab cue numbers, allow QLab to choose numbers, or use no numbers?" buttons {"EOS Cue Numbers", "QLab Default Numbers", "No Numbers"} with icon 1 default button "No Numbers")
 	end if
 	
-	make type "cue list"
-	-- or make a group cue instead of a cue list. You'll have to "un-comment" 2 lines below as well
-	--make type "group"
-	--set LXGroupQ to last item of (selected as list)
-	--set the mode of LXGroupQ to fire_first_enter_group
-	--set the q name of LXGroupQ to "Light Cues"
-	--set the q number of LXGroupQ to ""
-	--collapse LXGroupQ
+	try
+		set current cue list to last cue list whose q name is "EOS Light Cues"
+	on error number the errorNumber
+		if errorNumber is -1719 then
+			make type "cue list"
+			set q name of last cue list to "EOS Light Cues"
+			set current cue list to last cue list whose q name is "EOS Light Cues"
+		end if
+	end try
 	
-	set q name of last cue list to "EOS Light Cues"
-	set current cue list to last cue list whose q name is "EOS Light Cues"
-	
+	make type "memo"
+	set headerMemoCue to last item of (selected as list)
+	set q color of headerMemoCue to "Yellow"
+	set q name of headerMemoCue to (("EOS Light Cues - Generated from file " & csvFilePrompt as text) & " - " & (current date) as text) & " - Starts Below"
+	set notes of headerMemoCue to "EOS CSV Import Code Written by Chase Elison"
+	set q number of headerMemoCue to ""
+	set continue mode of headerMemoCue to do_not_continue
 	
 	set EOSCueLabelColumn to 7
 	set EOSCueListColumn to 3
@@ -274,10 +301,11 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 			set pre wait of qlabNewCue to 0
 			set duration of qlabNewCue to 0
 			set post wait of qlabNewCue to 0
-			set q name of qlabNewCue to qlabCueName
+			if qlabCueProblems is 0 then
+				set q name of qlabNewCue to qlabCueName
+			end if
 			--set patch of qlabNewCue to qlabCuePatch
 			if q type of qlabNewCue is "network" then
-				set patchName to network patch name of qlabNewCue
 				--if (countOfItems is not 4 and eosCueList is not "0") or (countOfItems is not 3 and eosCueList is "0") then
 				if qlabCueProblems > 0 then
 					display dialog "It appears your patch is not set correctly. Please first check that the patch you have chosen, network patch \"" & patchName & "\" is correct. If it is, please go to your settings (Gear icon in the bottom right of QLab) and under network, change the type of \"" & patchName & "\" to \"ETC Eos Family\"." with title "EOS CSV Cue Generator" with icon 1 buttons "OK" default button "OK"
@@ -457,5 +485,6 @@ Changes-
 v5.1 Added support for cue list 0, which if I recall correctly, is how Element consoles export their cue list
 v5.0.11 Changed the version numbering just to annoy people, and made changes to allow for Qlab 5.0.9's added user options in their library definitions.
 9/16/2023 - No change to code. No longer doing version numbers.
+9/17/2023 - Added logic earlier on to validate whether or not the network cues are set up correctly. Added logic to see if a cue list already exists and use that same one if possible. Added memo cue for logging when cues were generated.
 
 *)
