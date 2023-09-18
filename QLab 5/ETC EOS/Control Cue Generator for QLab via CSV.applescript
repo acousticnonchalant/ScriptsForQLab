@@ -300,7 +300,11 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 				set command format of qlabNewCue to 1 -- Lighting (General)
 				set command number of qlabNewCue to 1 -- GO
 				set deviceID of qlabNewCue to qlabMidiDeviceID
-				set q_list of qlabNewCue to eosCueList
+				if eosSpecifyCueList then
+					set q_list of qlabNewCue to eosCueList
+				else
+					set q_list of qlabNewCue to ""
+				end if
 				set q_number of qlabNewCue to eosCueNumber
 			end if
 			set pre wait of qlabNewCue to 0
