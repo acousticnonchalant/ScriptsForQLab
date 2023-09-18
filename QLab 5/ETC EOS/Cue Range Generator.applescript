@@ -22,9 +22,9 @@ set eosUser to 5 -- The user number. Doesn't matter if you're not specifying a u
 
 set eosCueList to -1 -- Cue list in EOS. Use 0 to not specify a list. Use -1 to prompt.
 
-set qlabCueType to "MIDI" -- One of: {"Network", "MIDI"}. Use "" to prompt.
-set qlabCuePatch to 1 -- The patch number, for either Network or MIDI. Use 0 to prompt.
-set qlabMidiDeviceID to 1 -- This doesn't matter if you are making a network cue. Use -1 to prompt.
+set qlabCueType to "" -- One of: {"Network", "MIDI"}. Use "" to prompt.
+set qlabCuePatch to 0 -- The patch number, for either Network or MIDI. Use 0 to prompt.
+set qlabMidiDeviceID to -1 -- This doesn't matter if you are making a network cue. Use -1 to prompt.
 set cueNamePrefix to "" -- What the cue name says before the number. Use "" to prompt.
 
 tell application id "com.figure53.QLab.5" to tell front workspace
