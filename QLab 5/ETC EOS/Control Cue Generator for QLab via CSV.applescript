@@ -70,7 +70,7 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 	set qlabCueProblems to 0
 	
 	if edit mode is false then return
-	display dialog "Do you have the CSV file exported from EOS with only cues selected ready to go?" with title "EOS CSV Cue Generator" with icon 1 buttons {"No", "Yes"} default button "Yes"
+	display dialog "Do you have the CSV file exported from EOS with only cues selected ready to go?" with title "EOS CSV Cue Generator" with icon 1 buttons {"No, Help Me!", "Yes"} default button "Yes"
 	
 	if button returned of result = "Yes" then
 		set csvFilePrompt to choose file with prompt "Please select an image to process:" of type {"csv"}
@@ -486,5 +486,5 @@ v5.1 Added support for cue list 0, which if I recall correctly, is how Element c
 v5.0.11 Changed the version numbering just to annoy people, and made changes to allow for Qlab 5.0.9's added user options in their library definitions.
 9/16/2023 - No change to code. No longer doing version numbers.
 9/17/2023 - Added logic earlier on to validate whether or not the network cues are set up correctly. Added logic to see if a cue list already exists and use that same one if possible. Added memo cue for logging when cues were generated.
- 
+
 *)
