@@ -110,8 +110,10 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 			return
 		end try
 	end if
-	
-	--9/17/23 Validate EOS network cue
+	--
+	--BEGIN ETC EOS Library Definition Validation Station
+	--Chase Elison 9/17/2023
+	--
 	if qlabCueType is "Network" then
 		make type "network"
 		set networkTestingCue to last item of (selected as list)
@@ -132,7 +134,10 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 			return
 		end if
 	end if
-	
+	--
+	--END ETC EOS Library Definition Validation Station
+	--It'll end the script and throw an error message if the patch is wrong
+	--
 	if qlabCueType is "MIDI" and (qlabMidiDeviceID < 0 or qlabMidiDeviceID > 127) then
 		display dialog "EOS - MIDI RX Device ID?" with icon 1 default answer "0"
 		try
