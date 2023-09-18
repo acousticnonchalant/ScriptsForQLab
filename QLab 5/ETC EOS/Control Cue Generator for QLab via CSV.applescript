@@ -214,15 +214,8 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 				set eosCueListPrefix to ""
 			else
 				set eosSpecifyCueList to true
-				set eosCueListPrecix to eosCueList & "/"
-			end if
-			(* remove this block if working
-			if eosCueList is not "1" and eosCueList is not "0" then
 				set eosCueListPrefix to eosCueList & "/"
-			else
-				set eosCueListPrefix to ""
 			end if
-			*)
 			
 			--Check that the EOS Cue number is not a "point" cue and make the value an integer if not
 			set eosCueNumber to item EOSCueNumberColumn of item currentRow of csvFile
@@ -296,6 +289,7 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 			else if qlabCueType is "MIDI" then
 				make type "midi"
 				set qlabNewCue to last item of (selected as list)
+				set midi patch number of qlabNewCue to qlabCuePatch
 				set message type of qlabNewCue to msc
 				set command format of qlabNewCue to 1 -- Lighting (General)
 				set command number of qlabNewCue to 1 -- GO
@@ -320,11 +314,6 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 					display dialog "It appears your patch is not set correctly. Please first check that the patch you have chosen, network patch \"" & patchName & "\" is correct. If it is, please go to your settings (Gear icon in the bottom right of QLab) and under network, change the type of \"" & patchName & "\" to \"ETC Eos Family\"." with title "EOS CSV Cue Generator" with icon 1 buttons "OK" default button "OK"
 					return
 				end if
-				--This is a tiny bit redundant since the new snippet that makes network cues flags them,
-				--but for this specific script it'll be good to have a full stop before it continues on making
-				--tons of errors before the user can fix it.
-			else if q type of qlabNewCue is "MIDI" then
-				set midi patch number of qlabNewCue to qlabCuePatch
 			end if
 			set continue mode of qlabNewCue to do_not_continue
 			if useCueNumbers = "EOS Cue Numbers" then
