@@ -46,7 +46,7 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 	
 	--
 	-- BEGIN QLab VERSION CHECK SNIPPET
-	-- Chase Elison 11/28/2022
+	-- Chase Elison 9/17/2023
 	--
 	set versionOfQLab to get version of application "QLab"
 	set text item delimiters of AppleScript to "."
@@ -57,9 +57,9 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 	if (item 2 of versionNumber is "0") and (item 3 of versionNumber as integer is 9) then
 		-- Is build .0.9 or higher, therefore will add user info in cues.
 		set isNewVersionWithUser to true
-	else if item 2 of versionNumber as integer is 1 then
+	else if item 2 of versionNumber as integer is greater than or equal to 1 then
 		-- Is greater than build .1.x, it will be presumed that newer versions will follow the same format
-		-- At time of writing this, 11/28/2022, QLab 5.0.10 is newest version.
+		-- At time of writing this, 9/17/2023, QLab 5.2.3 is newest version.
 		set isNewVersionWithUser to true
 	end if
 	--
@@ -486,5 +486,6 @@ v5.1 Added support for cue list 0, which if I recall correctly, is how Element c
 v5.0.11 Changed the version numbering just to annoy people, and made changes to allow for Qlab 5.0.9's added user options in their library definitions.
 9/16/2023 - No change to code. No longer doing version numbers.
 9/17/2023 - Added logic earlier on to validate whether or not the network cues are set up correctly. Added logic to see if a cue list already exists and use that same one if possible. Added memo cue for logging when cues were generated.
+9/17/2023 - Bug was found in the version check logic. It was only checking for if it IS .1.x not is greater than or equal to .1.x. Probably got lost in translation to Github.
 
 *)
