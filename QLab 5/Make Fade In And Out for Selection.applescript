@@ -3,6 +3,9 @@
 9/16/2023
 Tested with QLab v5.2.3 on macOS Ventura 13.5.2
 
+Please refer to my repository for any updates or to report problems you may find
+https://github.com/acousticnonchalant/ScriptsForQLab
+
 Make Fade In And Out for Selected Cues
 This script will make a fade in and out cue for a selection of cues and then select the first of them once completed. It will prompt the user to input a duration.
 See below for a fade time variable which you can set if you want to bypass the dialog.

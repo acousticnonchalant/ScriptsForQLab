@@ -3,6 +3,9 @@
 9/16/2023
 Tested with QLab v5.2.3 on macOS Ventura 13.5.2
 
+Please refer to my repository for any updates or to report problems you may find
+https://github.com/acousticnonchalant/ScriptsForQLab
+
 Active Cue Level Adjust, Based on Cue's Output Routing
 This script will change volume on all CURRENTLY PLAYING tracks if they are routed to the outputs defined below. Will only work in edit mode.
 See below for user variables, such as whether or not you want to set an absolute level or a relative level, and what the level will be,

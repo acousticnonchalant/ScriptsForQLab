@@ -3,6 +3,9 @@
 9/12/2023
 Tested with QLab v5.2.3 on macOS Ventura 13.5.2
 
+Please refer to my repository for any updates or to report problems you may find
+https://github.com/acousticnonchalant/ScriptsForQLab
+
 Timeline Group from Selected Cues
 This script will make a timeline group out of selected cues and copy the name, number and color from the first cue in the list.
 You should put this script into a script cue and trigger it with a hotkey from a Stream Deck, or give it a unique number and trigger it from Companion.
