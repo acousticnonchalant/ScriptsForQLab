@@ -3,6 +3,9 @@
 9/18/2023
 Tested with EOS 3.2.3 and QLab v5.2.3 on macOS Ventura 13.5.2
 
+Please refer to my repository for any updates or to report problems you may find
+https://github.com/acousticnonchalant/ScriptsForQLab
+
 ETC EOS Cue QLab 4 to 5 converter
 This script will take old EOS network cue commands from V4 and convert them to V5 cues, making use of the new libraries in QLab 5.
 

@@ -3,6 +3,9 @@
 Version 5.2
 7/6/2023
 
+Please refer to my repository for any updates or to report problems you may find
+https://github.com/acousticnonchalant/ScriptsForQLab
+
 QLab 5 NEO Cue Range Generator
 
 This script will generate a range of cues for Phillips NEO. This was done
