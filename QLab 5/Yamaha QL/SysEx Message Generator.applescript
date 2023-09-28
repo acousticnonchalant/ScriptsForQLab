@@ -109,7 +109,7 @@ end tell
 (* F0 start and F7 end are implied by QLab
 
 Channel 1 mix 13 off
-43 10 3E 19 01 00 49 00 27 00 00 00 00 00 00 00 seven
+43 10 3E 19 01 00 49 00 27 00 00 00 00 00 00 00
 43 Yamaha
 10 0=MIDI Channel Number - 1
 3E Digital Mixer
@@ -123,7 +123,7 @@ Channel 1 mix 13 off
 00 Channel H - 1 (0000 = Channel 1)
 00 ??
 00 ??
-00 ??
+00 ?? i don't know what these 3 do. It seems to want 3 sets of "00" here.
 00 Value L
 00 Value H (0000 = Off, 0001 = on)
 
@@ -163,7 +163,7 @@ Channel 2 Fader @ -inf
 01 Channel H - 1 (0001 = Channel 2)
 00 ??
 00 ??
-00 ??
+00 ?? i don't know what these 3 do. It seems to want 3 sets of "00" here.
 00 Value L
 00 Value H (0000 = -inf, 07F7 = +10db, 0637 = 0db)
 
