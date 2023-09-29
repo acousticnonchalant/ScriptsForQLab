@@ -19,13 +19,17 @@ chase@chaseelison.com
 
 *)
 
-set yamahaMidiChannel to 1 --second hex value, 1N where N is your channel number
+--Example message: 43 10 3E 19 01 00 49 00 27 00 00 00 00 00 00 00
+set yamahaMidiChannel to 1 --second hex value, 1N where N is your channel number - 1 (10=ch1, 11=ch2...)
 set yamahaMixerIdentifier to "3E 19" --third and fourth hex value, no end space
-
+set qlabCuePrefix to "Yamaha QL - "
 set qlabCuePatch to 1
 
-set faderLevels to {"-inf", "-30", "-28", "-25", "-24", "-22", "-20", "-18", "-16", "-15", "-12", "-10", "-5", "0", "+5", "+10"}
-set faderValues to {"00 00", "02 43", "02 57", "02 75", "02 7F", "03 13", "03 27", "03 4F", "03 77", "04 0B", "04 47", "04 6F", "05 53", "06 37", "07 1B", "07 7F"}
+
+set faderLevels to {"+10", "+5", "+4", "+3", "+2", "+1", "0", "-1", "-2", "-3", "-4", "-5", "-8", "-10", "-12", "-15", "-16", "-18", "-20", "-22", "-24", "-25", "-28", "-30", "-inf"}
+set faderValues to {"07 7F", "07 1B", "07 07", "06 73", "06 5F", "06 4B", "06 37", "06 23", "06 0F", "05 7B", "05 67", "05 53", "05 17", "04 6F", "04 47", "04 0B", "03 77", "03 4F", "03 27", "03 13", "02 7F", "02 75", "02 57", "02 43", "00 00"}
+set yamahaChannelMax to 64
+set yamahaStereoMax to 8
 
 tell application id "com.figure53.QLab.5" to tell front workspace
 	set yamahaCommands to {"Channel Fader Move", "Stereo Fader Move", "Channel On/Off", "Stereo On/Off"}
@@ -33,14 +37,31 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 	set yamahaCommand to yamahaCommand as text
 	
 	if yamahaCommand contains "Channel" then
-		display dialog "Channel?" with icon 1 default answer "1"
+		display dialog "Channel? (Use 0 to create one for every channel)" with icon 1 default answer "1"
 		set yamahaChannel to text returned of result as integer
-		if yamahaChannel is less than 1 or yamahaChannel is greater than 64 then return
+		if yamahaChannel is 0 then
+			set loopMax to yamahaChannelMax
+			set currentChannel to 1
+		else if yamahaChannel is less than 0 or yamahaChannel is greater than yamahaChannelMax then
+			return
+		else
+			set currentChannel to yamahaChannel
+			set loopMax to yamahaChannel
+		end if
+		--set qlabCommandLabel to "Channel " & yamahaChannel & " - "
 	else if yamahaCommand contains "Stereo" then
-		display dialog "Stereo #?" with icon 1 default answer "1"
+		display dialog "Stereo #? (Use 0 to create one for every stereo)" with icon 1 default answer "1"
 		set yamahaStereo to text returned of result as integer
-		if yamahaStereo is less than 1 or yamahaStereo is greater than 8 then return
-		set yamahaChannel to 71 + (yamahaStereo * 2) --seems like stereos start at 73
+		if yamahaStereo is 0 then
+			set loopMax to yamahaStereoMax
+			set currentChannel to 1
+		else if yamahaStereo is less than 0 or yamahaStereo is greater than yamahaStereoMax then
+			return
+		else
+			set currentChannel to yamahaStereo
+			set loopMax to yamahaStereo
+		end if
+		--set qlabCommandLabel to "Stereo " & yamahaStereo & " - "
 	end if
 	
 	if yamahaCommand is in {"Channel Fader Move", "Stereo Fader Move"} then
@@ -48,16 +69,17 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 		set yamahaElementHex to "00 37" -- no end space
 		--no index
 		set yamahaIndexHex to "00 00" -- no end space
-		set yamahaValue to choose from list faderLevels with prompt "Fader Level:" default items {(item 1 of faderLevels)}
+		set yamahaValue to choose from list faderLevels with prompt "Fader Level:" default items {"0"}
 		set listIndex to 0
 		repeat with i from 1 to the count of faderLevels
 			if item i of faderLevels is yamahaValue as text then
 				set listIndex to i
+				exit repeat
 			end if
 		end repeat
 		if listIndex is 0 then return
 		set yamahaValueHex to item listIndex of faderValues
-		set qlabCommandLabel to "Channel " & yamahaChannel & " Fader to " & yamahaValue as text
+		set qlabCommandLabel to "Fader to " & yamahaValue as text
 	else if yamahaCommand is in {"Channel On/Off", "Stereo On/Off"} then
 		-- 00 35 is on/off
 		set yamahaElementHex to "00 35" -- no end space
@@ -69,42 +91,49 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 		else if button returned of yamahaOnOff is "Off" then
 			set yamahaValueHex to "00 00"
 		end if
-		set qlabCommandLabel to "Channel " & yamahaChannel & " " & button returned of yamahaOnOff
+		set qlabCommandLabel to button returned of yamahaOnOff
 	end if
 	--display dialog "Fader value between 0 and 1919 (1591 = 0)" with icon 1 default answer "1591"
 	--set yamahaValue to text returned of result as integer
 end tell
 
 
---set valueCount to 1
---repeat until valueCount > (count of faderLevels)
---set yamahaValue to item valueCount of faderValues
-
---Parse QLab input data
-set yamahaChannelHex to getHighLowHex(yamahaChannel - 1) -- Ch 64 = id 63... etc
-
---Generate the message
-set qlabSysexMessage to "43 "
-set qlabSysexMessage to qlabSysexMessage & "1" & getSingleHex(yamahaMidiChannel - 1) & " "
-set qlabSysexMessage to qlabSysexMessage & yamahaMixerIdentifier & " 01  "
-set qlabSysexMessage to qlabSysexMessage & yamahaElementHex & "  "
-set qlabSysexMessage to qlabSysexMessage & yamahaIndexHex & "  "
-set qlabSysexMessage to qlabSysexMessage & yamahaChannelHex & "  "
---idk what this is, but it seems to want "00 00 00" here:
-set qlabSysexMessage to qlabSysexMessage & "00 00 00  "
-set qlabSysexMessage to qlabSysexMessage & yamahaValueHex
-
-tell application id "com.figure53.QLab.5" to tell front workspace
-	make type "MIDI"
-	set qlabNewCue to last item of (selected as list)
-	set message type of qlabNewCue to sysex
-	set midi patch number of qlabNewCue to qlabCuePatch
-	set sysex message of qlabNewCue to qlabSysexMessage
-	set q name of qlabNewCue to "Yamaha QL " & qlabCommandLabel
-	set q number of qlabNewCue to ""
-end tell
---	set valueCount to valueCount + 1
---end repeat
+repeat until currentChannel > loopMax
+	
+	if yamahaCommand contains "Channel" then
+		set qlabChannelLabel to "Channel " & currentChannel & " - "
+		set yamahaChannel to currentChannel
+	else if yamahaCommand contains "Stereo" then
+		set qlabChannelLabel to "Stereo " & currentChannel & " - "
+		set yamahaChannel to 71 + (currentChannel * 2) --seems like stereos start at 73
+	end if
+	set qlabLabel to qlabCuePrefix & qlabChannelLabel & qlabCommandLabel
+	--Parse QLab input data
+	set yamahaChannelHex to getHighLowHex(yamahaChannel - 1) -- Ch 64 = id 63... etc
+	
+	--Generate the message
+	set qlabSysexMessage to "43 "
+	set qlabSysexMessage to qlabSysexMessage & "1" & getSingleHex(yamahaMidiChannel - 1) & " "
+	set qlabSysexMessage to qlabSysexMessage & yamahaMixerIdentifier & " 01  "
+	set qlabSysexMessage to qlabSysexMessage & yamahaElementHex & "  "
+	set qlabSysexMessage to qlabSysexMessage & yamahaIndexHex & "  "
+	set qlabSysexMessage to qlabSysexMessage & yamahaChannelHex & "  "
+	--idk what this is, but it seems to want "00 00 00" here:
+	set qlabSysexMessage to qlabSysexMessage & "00 00 00  "
+	set qlabSysexMessage to qlabSysexMessage & yamahaValueHex
+	
+	tell application id "com.figure53.QLab.5" to tell front workspace
+		make type "MIDI"
+		set qlabNewCue to last item of (selected as list)
+		set message type of qlabNewCue to sysex
+		set midi patch number of qlabNewCue to qlabCuePatch
+		set sysex message of qlabNewCue to qlabSysexMessage
+		set q name of qlabNewCue to qlabLabel
+		set q number of qlabNewCue to ""
+	end tell
+	
+	set currentChannel to currentChannel + 1
+end repeat
 
 (* F0 start and F7 end are implied by QLab
 
