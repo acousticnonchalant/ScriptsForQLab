@@ -1,7 +1,7 @@
 (* 
 
-9/16/2023
-Tested with QLab v5.2.3 on macOS Ventura 13.5.2
+10/14/2023
+Tested with QLab v5.2.4 on macOS Ventura 13.5.2
 
 Please refer to my repository for any updates or to report problems you may find
 https://github.com/acousticnonchalant/ScriptsForQLab
@@ -45,7 +45,11 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 			if q type of eachCue is in {"Video", "Camera", "Text"} then
 				set sourceOpacity to opacity of eachCue
 				set opacity of eachCue to 0
-				set opacity of fadeCue to sourceOpacity
+				if sourceOpacity is 0 then
+					set opacity of fadeCue to 100
+				else
+					set opacity of fadeCue to sourceOpacity
+				end if
 				set do opacity of fadeCue to true
 			end if
 			set q name of fadeCue to "FADE IN - " & q display name of eachCue
@@ -87,3 +91,11 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 	--The following stupid persnickity statement will select the first selected cue before the script started.
 	set selected to cue id (uniqueID of endSelection) of (parent of endSelection)
 end tell
+
+(*
+
+Changes-
+
+10/14/2023 - If the original cue's opacity is 0, the script will assume you want it to fade up to 100%. I found that if I copied a cue that had already faded in, it already had a value of 0 and running the script again would fade the opacity to 0 because that was the original value and found that rather annoying.
+
+*)
