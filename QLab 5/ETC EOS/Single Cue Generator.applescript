@@ -1,6 +1,6 @@
 (* 
 
-9/18/2023
+11/8/2023
 Tested with EOS 3.2.3 and QLab v5.2.3 on macOS Ventura 13.5.2
 
 Please refer to my repository for any updates or to report problems you may find
@@ -20,6 +20,10 @@ Written by Chase Elison
 chase@chaseelison.com
 
 *)
+
+set qlabFirstColor to "" -- Leave as "" if you want no color
+set qlabUseSecondColor to false
+set qlabSecondColor to "" -- Leave as "" if you want no color
 
 set eosSpecifyUser to false -- For network only, specify whether or not you want to specify an EOS user number.
 set eosUser to 5 -- The user number. Doesn't matter if you're not specifying a user.
@@ -160,6 +164,22 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 			return
 		end if
 	end if
-	
+	try
+		if qlabFirstColor is not "" then
+			set q color of qlabNewCue to qlabFirstColor
+			if qlabUseSecondColor then
+				set use q color 2 of qlabNewCue to true
+				set q color 2 of qlabNewCue to qlabSecondColor
+			end if
+		end if
+	end try
 	set q number of qlabNewCue to ""
 end tell
+
+(*
+
+Changes-
+
+11/8/2023 - Added variables to set a color for new cues at the top of the script.
+
+*)
