@@ -1,7 +1,7 @@
 (* 
 
-9/18/2023
-Tested with EOS 3.2.3 and QLab v5.2.3 on macOS Ventura 13.5.2
+11/8/2023
+Tested with EOS 3.2.5 and QLab v5.3 on macOS Ventura 13.6.1
 
 Please refer to my repository for any updates or to report problems you may find
 https://github.com/acousticnonchalant/ScriptsForQLab
@@ -18,6 +18,8 @@ Written by Chase Elison
 chase@chaseelison.com
 
 *)
+
+set qlabCueColor to "" -- Leave as "" if you don't want a color set
 
 set eosPromptForUser to true -- Set this to true if you don't want to set the user in the two variables below.
 set eosSpecifyUser to false -- For network only, specify whether or not you want to specify an EOS user number.
@@ -288,8 +290,21 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 			end if
 		end if
 		
+		try
+			if qlabCueColor is not "" then
+				set q color of qlabNewCue to qlabCueColor
+			end if
+		end try
 		set q number of qlabNewCue to ""
 		
 		set currentCueNumber to currentCueNumber + increment
 	end repeat
 end tell
+
+(*
+
+Changes-
+
+11/8/2023 - Added variable to set a color for new cues at the top of the script.
+
+*)
