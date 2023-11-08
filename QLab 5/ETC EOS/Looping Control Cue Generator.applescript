@@ -1,7 +1,7 @@
 (* 
 
 11/8/2023
-Tested with EOS 3.2.3 and QLab v5.2.3 on macOS Ventura 13.5.2
+Tested with EOS 3.2.5 and QLab v5.3 on macOS Ventura 13.6.1
 
 ETC EOS Looping Control Cue Generator for QLab
 This script will generate light cues on a loop when called. Useful if someone is relaying cue numbers to you verbally, or if you have to add several cues and know their numbers. It will keep looping until you hit "cancel"
