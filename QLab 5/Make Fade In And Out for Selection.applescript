@@ -1,6 +1,6 @@
 (* 
 
-10/14/2023
+11/8/2023
 Tested with QLab v5.2.4 on macOS Ventura 13.5.2
 
 Please refer to my repository for any updates or to report problems you may find
@@ -21,6 +21,13 @@ chase@chaseelison.com
 --Set the variable to 0 if you want the dialog to appear:
 set userFadeDuration to 0
 
+set copyColorFromOriginalCue to true
+
+--The following will be ignored if you are copying color from original cue:
+set qlabFirstColor to "" -- Leave as "" if you want no color
+set qlabUseSecondColor to false
+set qlabSecondColor to "" -- Leave as "" if you want no color
+
 tell application id "com.figure53.QLab.5" to tell front workspace
 	if edit mode is false then return
 	if userFadeDuration ≤ 0 then
@@ -35,6 +42,7 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 				set originalLevel to eachCue getLevel row 0 column 0
 				eachCue setLevel row 0 column 0 db -120
 			end try
+			
 			make type "Fade"
 			set fadeInCue to last item of (selected as list)
 			
@@ -110,6 +118,47 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 				set endSelection to groupCue
 			end if
 			
+			--Color shenanigans:
+			set originalFirstColor to q color of eachCue
+			set originalUseSecondColor to use q color 2 of eachCue
+			set originalSecondColor to q color 2 of eachCue
+			
+			try
+				if copyColorFromOriginalCue then
+					--In...
+					set q color of fadeInCue to originalFirstColor
+					set use q color 2 of fadeInCue to originalUseSecondColor
+					set q color 2 of fadeInCue to originalSecondColor
+					--Out...
+					set q color of fadeOutCue to originalFirstColor
+					set use q color 2 of fadeOutCue to originalUseSecondColor
+					set q color 2 of fadeOutCue to originalSecondColor
+					--Group...
+					set q color of groupCue to originalFirstColor
+					set use q color 2 of groupCue to originalUseSecondColor
+					set q color 2 of groupCue to originalSecondColor
+				else
+					if qlabFirstColor is not "" then
+						--In...
+						set q color of fadeInCue to qlabFirstColor
+						--Out...
+						set q color of fadeOutCue to qlabFirstColor
+						--Group...
+						set q color of groupCue to qlabFirstColor
+						if qlabUseSecondColor then
+							--In...
+							set use q color 2 of fadeInCue to true
+							set q color 2 of fadeInCue to qlabSecondColor
+							--Out...
+							set use q color 2 of fadeOutCue to true
+							set q color 2 of fadeOutCue to qlabSecondColor
+							--Group...
+							set use q color 2 of groupCue to true
+							set q color 2 of groupCue to qlabSecondColor
+						end if
+					end if
+				end if
+			end try
 		end if
 	end repeat
 	--The following stupid persnickity statement will select the first selected cue before the script started.
@@ -121,5 +170,7 @@ end tell
 Changes-
 
 10/14/2023 - If the original cue's opacity is 0, the script will assume you want it to fade up to 100%. I found that if I copied a cue that had already faded in, it already had a value of 0 and running the script again would fade the opacity to 0 because that was the original value and found that rather annoying.
+11/8/2023 - Added variables to set a color for new cues at the top of the script.
+
 
 *)
