@@ -1,7 +1,7 @@
 (* 
 
 11/8/2023
-Tested with EOS 3.2.3 and QLab v5.2.3 on macOS Ventura 13.5.2
+Tested with EOS 3.2.5 and QLab v5.3 on macOS Ventura 13.6.1
 
 Please refer to my repository for any updates or to report problems you may find
 https://github.com/acousticnonchalant/ScriptsForQLab
