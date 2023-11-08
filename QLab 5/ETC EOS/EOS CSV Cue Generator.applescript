@@ -1,7 +1,7 @@
 (* 
 
-9/18/2023
-Tested with EOS 3.2.3 and QLab v5.2.3 on macOS Ventura 13.5.2
+11/8/2023
+Tested with EOS 3.2.5 and QLab v5.3 on macOS Ventura 13.6.1
 
 Please refer to my repository for any updates or to report problems you may find
 https://github.com/acousticnonchalant/ScriptsForQLab
@@ -30,6 +30,10 @@ Snippets of code from Taylor Glad, including the code to create a new cue list. 
 CSV Reading Functionality from Nigel Garvey - https://macscripter.net/viewtopic.php?pid=125444#p125444
 
 *)
+
+set qlabFirstColor to "" -- Leave as "" if you want no color
+set qlabUseSecondColor to false
+set qlabSecondColor to "" -- Leave as "" if you want no color
 
 --NEW as of QLab 5.0.9 - You now need to specify whether or not you want to use a user. Do so here.
 --If the boolean is false, the second variable does not matter.
@@ -194,6 +198,7 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 	set EOSAutoFollowColumn to 24
 	set EOSCueLinkColumn to 25
 	set EOSTargetTypeColumn to 2
+	set EOSPartColumn to 6
 	set ExcelStartRow to 4
 	
 	
@@ -201,11 +206,29 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 	set eosRedCueCount to 0
 	
 	repeat until (item 1 of item currentRow of csvFile is "END_TARGETS")
+		--Reset cue red status
+		set qlabMakeCueRed to false
+		set eosSpecialPrefixes to ""
+		set doThisRow to false
+		
 		--First, verify that the row is a cue:
 		if item EOSTargetTypeColumn of item currentRow of csvFile is "Cue" then
-			--Reset cue red status
-			set qlabMakeCueRed to false
-			set eosSpecialPrefixes to ""
+			set doThisRow to true
+		end if
+		--Now make sure it isn't a part
+		if item EOSPartColumn of item currentRow of csvFile is not "" then
+			(* --this got a little too complicated. I'm just gonna make it red.
+			set checkLastCue to last item of (selected as list)
+			set checkCueNumber to (count of items of parameter values of checkLastCue)
+			set checkCurrentCue to item EOSCueNumberColumn of item currentRow of csvFile
+			if item checkCueNumber of parameter values of checkLastCue is checkCurrentCue then
+				set doThisRow to false
+			end if
+			*)
+			set qlabMakeCueRed to true
+			set eosSpecialPrefixes to "(PART " & item EOSPartColumn of item currentRow of csvFile & ") "
+		end if
+		if doThisRow then
 			
 			--Check the EOS cue list and prepend to cue name if it is not 1
 			set eosCueList to item EOSCueListColumn of item currentRow of csvFile
@@ -328,8 +351,22 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 			
 			
 			if qlabMakeCueRed then
-				set q color of qlabNewCue to "Red"
+				if qlabFirstColor is not "Red" then
+					set q color of qlabNewCue to "Red"
+				else
+					set q color of qlabNewCue to "Yellow"
+				end if
 				set eosRedCueCount to eosRedCueCount + 1
+			else
+				try
+					if qlabFirstColor is not "" then
+						set q color of qlabNewCue to qlabFirstColor
+						if qlabUseSecondColor then
+							set use q color 2 of qlabNewCue to true
+							set q color 2 of qlabNewCue to qlabSecondColor
+						end if
+					end if
+				end try
 			end if
 			
 		end if
@@ -488,5 +525,6 @@ v5.0.11 Changed the version numbering just to annoy people, and made changes to 
 9/16/2023 - No change to code. No longer doing version numbers.
 9/17/2023 - Added logic earlier on to validate whether or not the network cues are set up correctly. Added logic to see if a cue list already exists and use that same one if possible. Added memo cue for logging when cues were generated.
 9/17/2023 - Bug was found in the version check logic. It was only checking for if it IS .1.x not is greater than or equal to .1.x. Probably got lost in translation to Github.
+11/8/2023 - Added variables to set a color for new cues at the top of the script. Added logic for the handling of part cues.
 
 *)
