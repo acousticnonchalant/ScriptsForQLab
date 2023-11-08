@@ -1,7 +1,7 @@
 (* 
 
-9/16/2023
-Tested with QLab v5.2.3 on macOS Ventura 13.5.2
+11/8/2023
+Tested with QLab v5.3 on macOS Ventura 13.6.1
 
 Please refer to my repository for any updates or to report problems you may find
 https://github.com/acousticnonchalant/ScriptsForQLab
@@ -20,6 +20,13 @@ chase@chaseelison.com
 
 --Set the variable to 0 if you want the dialog to appear:
 set userFadeDuration to 0
+
+set copyColorFromOriginalCue to false
+
+--The following will be ignored if you are copying color from original cue:
+set qlabFirstColor to "Yellow" -- Leave as "" if you want no color
+set qlabUseSecondColor to false
+set qlabSecondColor to "" -- Leave as "" if you want no color
 
 tell application id "com.figure53.QLab.5" to tell front workspace
 	if edit mode is false then return
@@ -72,9 +79,41 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 				tell parent of eachCue
 					move cue id (uniqueID of fadeCue) to after cue id (uniqueID of eachCue)
 				end tell
+				--Color shenanigans:
+				set originalFirstColor to q color of eachCue
+				set originalUseSecondColor to use q color 2 of eachCue
+				set originalSecondColor to q color 2 of eachCue
+				
+				try
+					if copyColorFromOriginalCue then
+						--Fade...
+						set q color of fadeCue to originalFirstColor
+						set use q color 2 of fadeCue to originalUseSecondColor
+						set q color 2 of fadeCue to originalSecondColor
+					else
+						if qlabFirstColor is not "" then
+							--Fade...
+							set q color of fadeCue to qlabFirstColor
+							if qlabUseSecondColor then
+								--Fade...
+								set use q color 2 of fadeCue to true
+								set q color 2 of fadeCue to qlabSecondColor
+							end if
+						end if
+					end if
+				end try
 			end if
+			
 		end try
 	end repeat
 	--The following stupid persnickity statement will select the first selected cue before the script started.
 	set selected to cue id (uniqueID of item 1 of theSelection) of (parent of item 1 of theSelection)
 end tell
+
+(*
+
+Changes-
+
+11/8/2023 - Added variables to set a color for new cues at the top of the script.
+
+*)
