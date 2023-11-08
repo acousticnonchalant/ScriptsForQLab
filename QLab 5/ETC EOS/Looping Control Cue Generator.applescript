@@ -1,6 +1,6 @@
 (* 
 
-9/18/2023
+11/8/2023
 Tested with EOS 3.2.3 and QLab v5.2.3 on macOS Ventura 13.5.2
 
 ETC EOS Looping Control Cue Generator for QLab
@@ -18,6 +18,10 @@ Written by Chase Elison
 chase@chaseelison.com
 
 *)
+
+set qlabFirstColor to "" -- Leave as "" if you want no color
+set qlabUseSecondColor to true
+set qlabSecondColor to "" -- Leave as "" if you want no color
 
 set eosPromptForUser to false -- Set this to true if you don't want to set the user in the two variables below.
 set eosSpecifyUser to false -- For network only, specify whether or not you want to specify an EOS user number.
@@ -279,7 +283,24 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 			end if
 		end if
 		
+		try
+			if qlabFirstColor is not "" then
+				set q color of qlabNewCue to qlabFirstColor
+				if qlabUseSecondColor then
+					set use q color 2 of qlabNewCue to true
+					set q color 2 of qlabNewCue to qlabSecondColor
+				end if
+			end if
+		end try
 		set q number of qlabNewCue to ""
 		
 	end repeat
 end tell
+
+(*
+
+Changes-
+
+11/8/2023 - Added variables to set a color for new cues at the top of the script.
+
+*)
