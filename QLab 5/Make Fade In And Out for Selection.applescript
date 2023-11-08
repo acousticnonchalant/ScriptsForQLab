@@ -1,7 +1,7 @@
 (* 
 
 11/8/2023
-Tested with QLab v5.2.4 on macOS Ventura 13.5.2
+Tested with QLab v5.3 on macOS Ventura 13.6.1
 
 Please refer to my repository for any updates or to report problems you may find
 https://github.com/acousticnonchalant/ScriptsForQLab
