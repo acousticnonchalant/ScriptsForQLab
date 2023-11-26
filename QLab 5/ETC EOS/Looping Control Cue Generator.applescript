@@ -1,7 +1,7 @@
 (* 
 
-11/8/2023
-Tested with EOS 3.2.5 and QLab v5.3 on macOS Ventura 13.6.1
+11/26/2023
+Tested with EOS 3.2.5 and QLab v5.3.2 on macOS Ventura 13.6.1
 
 ETC EOS Looping Control Cue Generator for QLab
 This script will generate light cues on a loop when called. Useful if someone is relaying cue numbers to you verbally, or if you have to add several cues and know their numbers. It will keep looping until you hit "cancel"
@@ -19,7 +19,7 @@ chase@chaseelison.com
 
 *)
 
-set qlabFirstColor to "" -- Leave as "" if you want no color
+set qlabFirstColor to "Forest" -- Leave as "" if you want no color
 set qlabUseSecondColor to true
 set qlabSecondColor to "" -- Leave as "" if you want no color
 
@@ -88,6 +88,7 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 	--Chase Elison 9/17/2023
 	--
 	if qlabCueType is "Network" then
+		set previousSelection to selected as list -- We'll call this just before the loop so we don't get out of sorts.
 		make type "network"
 		set networkTestingCue to last item of (selected as list)
 		set network patch number of networkTestingCue to qlabCuePatch
@@ -183,6 +184,8 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 	
 	set qlabCueProblems to 0
 	
+	--The following stupid persnickity statement will select the first selected cue before the script started.
+	set selected to previousSelection
 	
 	set keepLooping to true
 	repeat while keepLooping
@@ -302,5 +305,6 @@ end tell
 Changes-
 
 11/8/2023 - Added variables to set a color for new cues at the top of the script.
+11/26/2023 - Added code to reposition cursor after deleting network test cue. I found it annoying that generated cues did not go where I wanted them.
 
 *)
