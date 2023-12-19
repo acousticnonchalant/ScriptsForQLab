@@ -39,6 +39,8 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 	make type "MIDI"
 	set qlabNewCue to last item of (selected as list)
 	
+	set midi patch number of qlabNewCue to qlabCuePatch
+	
 	set message type of qlabNewCue to voice
 	set command of qlabNewCue to program_change
 	set channel of qlabNewCue to qlabMidiDeviceID
@@ -57,5 +59,12 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 			end if
 		end if
 	end try
-	set q number of qlabNewCue to ""
 end tell
+
+(*
+
+Changes-
+
+12/19/2023 - Left out logic to choose MIDI patch
+
+*)
