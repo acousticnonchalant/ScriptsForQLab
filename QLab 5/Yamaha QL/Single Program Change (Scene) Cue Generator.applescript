@@ -33,55 +33,34 @@ use scripting additions
 tell application id "com.figure53.QLab.5" to tell front workspace
 	
 	
-	display dialog dialogText & "First " & unitName & " Number?" default answer "1" with title "QLab 5 EOS Cue Range Generator" with icon 1 buttons {"OK", "Cancel"} default button "OK"
-	if button returned of result = "cancel" then
-		return
-	else
-		set firstCueNumber to (text returned of result) as integer
-	end if
+	display dialog dialogText & unitName & " number?" with icon 1 default answer "1"
+	set programChangeNumber to text returned of result as integer
 	
-	display dialog dialogText & "Last " & unitName & " Number?" default answer "1" with title "QLab 5 EOS Cue Range Generator" with icon 1 buttons {"OK", "Cancel"} default button "OK"
-	if button returned of result = "cancel" then
-		return
-	else
-		set lastCueNumber to (text returned of result) as integer
-	end if
+	set qlabCueName to cueNamePrefix & programChangeNumber & cueNameSuffix
 	
-	set increment to 1
+	make type "MIDI"
+	set qlabNewCue to last item of (selected as list)
 	
-	set currentCueNumber to firstCueNumber
-	repeat while (currentCueNumber is less than or equal to lastCueNumber) and (currentCueNumber is greater than or equal to firstCueNumber)
-		
-		set programChangeNumber to currentCueNumber
-		
-		set qlabCueName to cueNamePrefix & programChangeNumber & cueNameSuffix
-		
-		make type "MIDI"
-		set qlabNewCue to last item of (selected as list)
-		
-		set midi patch number of qlabNewCue to qlabCuePatch
-		
-		set message type of qlabNewCue to voice
-		set command of qlabNewCue to program_change
-		set channel of qlabNewCue to qlabMidiDeviceID
-		set byte one of qlabNewCue to ((programChangeNumber as integer) + addToValue)
-		
-		set q number of qlabNewCue to ""
-		set q name of qlabNewCue to qlabCueName
-		
-		
-		try
-			if qlabFirstColor is not "" then
-				set q color of qlabNewCue to qlabFirstColor
-				if qlabUseSecondColor then
-					set use q color 2 of qlabNewCue to true
-					set q color 2 of qlabNewCue to qlabSecondColor
-				end if
+	set midi patch number of qlabNewCue to qlabCuePatch
+	
+	set message type of qlabNewCue to voice
+	set command of qlabNewCue to program_change
+	set channel of qlabNewCue to qlabMidiDeviceID
+	set byte one of qlabNewCue to ((programChangeNumber as integer) + addToValue)
+	
+	set q number of qlabNewCue to ""
+	set q name of qlabNewCue to qlabCueName
+	
+	
+	try
+		if qlabFirstColor is not "" then
+			set q color of qlabNewCue to qlabFirstColor
+			if qlabUseSecondColor then
+				set use q color 2 of qlabNewCue to true
+				set q color 2 of qlabNewCue to qlabSecondColor
 			end if
-		end try
-		
-		set currentCueNumber to currentCueNumber + increment
-	end repeat
+		end if
+	end try
 end tell
 
 (*
