@@ -35,8 +35,7 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 	display dialog dialogText with icon 1 default answer "1"
 	set programChangeNumber to text returned of result as integer
 	
-	
-	set qlabCueName to cueNamePrefix & programChangeNumber
+	set qlabCueName to cueNamePrefix & programChangeNumber & cueNameSuffix
 	
 	make type "MIDI"
 	set qlabNewCue to last item of (selected as list)
@@ -49,7 +48,7 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 	set byte one of qlabNewCue to ((programChangeNumber as integer) + addToValue)
 	
 	set q number of qlabNewCue to ""
-	set q name of qlabNewCue to cueNamePrefix & programChangeNumber & cueNameSuffix
+	set q name of qlabNewCue to qlabCueName
 	
 	
 	try
