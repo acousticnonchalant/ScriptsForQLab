@@ -1,7 +1,7 @@
 (* 
 
-12/19/2023
-Tested with QLab v5.3.2 on macOS Sonoma 14.2
+12/22/2023
+Tested with QLab v5.3.3 on macOS Sonoma 14.2
 
 Yamaha Program Change Generator
 This script will generate a single program change cue (scene recall) for Yamaha consoles when called.
@@ -18,7 +18,7 @@ set qlabFirstColor to "Magenta" -- Leave as "" if you want no color
 set qlabUseSecondColor to false
 set qlabSecondColor to "" -- Leave as "" if you want no color
 
-set qlabCuePatch to 5 -- The patch number, for either Network or MIDI.
+set qlabCuePatch to 1 -- The patch number, for either Network or MIDI.
 set qlabMidiDeviceID to 1
 set cueNamePrefix to "YAMAHA QL5 - RECALL SCENE " -- What the cue name says before the number.
 set dialogText to "Making a Yamaha MIDI Scene (Program Change) Cue
@@ -67,5 +67,6 @@ end tell
 Changes-
 
 12/19/2023 - Left out logic to choose MIDI patch. Made it a little more universal if you want to change it.
+12/22/2023 - Accidentally left some testing code in that would make the script difficult to use. Oops
 
 *)
