@@ -21,8 +21,9 @@ set qlabSecondColor to "" -- Leave as "" if you want no color
 set qlabCuePatch to 1 -- The patch number, for either Network or MIDI.
 set qlabMidiDeviceID to 1
 set cueNamePrefix to "YAMAHA QL5 - RECALL SCENE " -- What the cue name says before the number.
+set cueNameSuffix to "" -- Anything you want to write after the number.
 set dialogText to "Making a Yamaha MIDI Scene (Program Change) Cue
-" -- Change this to taste if you want to use this for something else
+Scene number?" -- Change this to taste if you want to use this for something else
 set addToValue to -1 --Yamaha's program changes start at 0 for scene 1.
 
 use AppleScript version "2.4" -- Yosemite (10.10) or later
@@ -31,7 +32,7 @@ use scripting additions
 tell application id "com.figure53.QLab.5" to tell front workspace
 	
 	
-	display dialog dialogText & "Scene Number?" with icon 1 default answer "1"
+	display dialog dialogText with icon 1 default answer "1"
 	set programChangeNumber to text returned of result as integer
 	
 	
@@ -48,7 +49,7 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 	set byte one of qlabNewCue to ((programChangeNumber as integer) + addToValue)
 	
 	set q number of qlabNewCue to ""
-	set q name of qlabNewCue to cueNamePrefix & programChangeNumber
+	set q name of qlabNewCue to cueNamePrefix & programChangeNumber & cueNameSuffix
 	
 	
 	try
@@ -67,6 +68,6 @@ end tell
 Changes-
 
 12/19/2023 - Left out logic to choose MIDI patch. Made it a little more universal if you want to change it.
-12/22/2023 - Accidentally left some testing code in that would make the script difficult to use. Oops
+12/22/2023 - Accidentally left some testing code in that would make the script difficult to use. Also added some more universal code.
 
 *)
