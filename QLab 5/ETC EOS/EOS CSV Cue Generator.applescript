@@ -1,7 +1,7 @@
 (* 
 
-11/8/2023
-Tested with EOS 3.2.5 and QLab v5.3 on macOS Ventura 13.6.1
+1/23/2024
+Tested with EOS 3.2.5 and QLab v5.3.3 on macOS Sonoma 14.1.1
 
 Please refer to my repository for any updates or to report problems you may find
 https://github.com/acousticnonchalant/ScriptsForQLab
@@ -39,6 +39,9 @@ set qlabSecondColor to "" -- Leave as "" if you want no color
 --If the boolean is false, the second variable does not matter.
 set eosSpecifyUser to false
 set eosUser to 5
+
+--Set this to false if you do not want to copy scene information that may be stored with cues.
+set eosIncludeScenes to true
 
 --DEFAULTS: Set values to these if you don't want to be prompted for settings when you run this script:
 set qlabCueType to "" -- "" if prompt, otherwise one of: {"Network", "MIDI"}
@@ -192,6 +195,12 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 	set q number of headerMemoCue to ""
 	set continue mode of headerMemoCue to do_not_continue
 	
+	if qlabFirstColor is not "Green" then
+		set sceneMemoColor to "Green"
+	else
+		set sceneMemoColor to "Cyan"
+	end if
+	
 	set EOSCueLabelColumn to 7
 	set EOSCueListColumn to 3
 	set EOSCueNumberColumn to 4
@@ -199,6 +208,8 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 	set EOSCueLinkColumn to 25
 	set EOSTargetTypeColumn to 2
 	set EOSPartColumn to 6
+	set EOSSceneColumn to 33
+	set EOSSceneEndColumn to 34
 	set ExcelStartRow to 4
 	
 	
@@ -229,6 +240,15 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 			set eosSpecialPrefixes to "(PART " & item EOSPartColumn of item currentRow of csvFile & ") "
 		end if
 		if doThisRow then
+			
+			set eosScene to item EOSSceneColumn of item currentRow of csvFile
+			if eosScene is not "" and eosIncludeScenes then
+				make type "Memo"
+				set memoCue to last item of (selected as list)
+				set q color of memoCue to sceneMemoColor
+				set q name of memoCue to "EOS SCENE - " & eosScene
+				set q number of memoCue to ""
+			end if
 			
 			--Check the EOS cue list and prepend to cue name if it is not 1
 			set eosCueList to item EOSCueListColumn of item currentRow of csvFile
@@ -348,7 +368,13 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 				set q number of qlabNewCue to ""
 			end if
 			
-			
+			if (item EOSSceneEndColumn of item currentRow of csvFile is not "") and eosIncludeScenes then
+				make type "Memo"
+				set memoCue to last item of (selected as list)
+				set q color of memoCue to sceneMemoColor
+				set q name of memoCue to "EOS SCENE END"
+				set q number of memoCue to ""
+			end if
 			
 			if qlabMakeCueRed then
 				if qlabFirstColor is not "Red" then
@@ -526,5 +552,6 @@ v5.0.11 Changed the version numbering just to annoy people, and made changes to 
 9/17/2023 - Added logic earlier on to validate whether or not the network cues are set up correctly. Added logic to see if a cue list already exists and use that same one if possible. Added memo cue for logging when cues were generated.
 9/17/2023 - Bug was found in the version check logic. It was only checking for if it IS .1.x not is greater than or equal to .1.x. Probably got lost in translation to Github.
 11/8/2023 - Added variables to set a color for new cues at the top of the script. Added logic for the handling of part cues.
+1/23/2024 - Added the ability to copy scene attributes from EOS cues.
 
 *)
