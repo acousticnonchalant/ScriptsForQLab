@@ -1,7 +1,7 @@
 (* 
 
-9/12/2023
-Tested with QLab v5.2.3 on macOS Ventura 13.5.2
+5/10/2024
+Tested with QLab v5.3.8 on macOS Sonoma 14.4.1
 
 Please refer to my repository for any updates or to report problems you may find
 https://github.com/acousticnonchalant/ScriptsForQLab
@@ -42,6 +42,8 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 	set q number of firstCue to ""
 	set q number of groupCue to newNumber
 	set q color of groupCue to q color of firstCue
+	set use q color 2 of groupCue to use q color 2 of firstCue
+	set q color 2 of groupCue to q color 2 of firstCue
 	repeat with eachCue in theSelection
 		move cue id (uniqueID of eachCue) of (parent of eachCue) to end of groupCue
 	end repeat
@@ -52,5 +54,6 @@ end tell
 Changes-
 9/12/23 - Added option to copy notes from the first cue to the group cue
 9/12/23 - Added option to copy the continue mode from the first cue to the group cue
+5/10/24 - Added second color to parameters copied to group cue
 
 *)
