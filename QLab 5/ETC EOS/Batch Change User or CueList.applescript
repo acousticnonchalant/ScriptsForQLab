@@ -1,7 +1,7 @@
 (* 
 
 6/9/2024
-Tested with EOS 3.2.8 and QLab v5.3.8 on macOSSonoma 14.4.1
+Tested with EOS 3.2.8 and QLab v5.3.8 on macOS Sonoma 14.4.1
 
 Please refer to my repository for any updates or to report problems you may find
 https://github.com/acousticnonchalant/ScriptsForQLab
@@ -23,17 +23,6 @@ use AppleScript version "2.4" -- Yosemite (10.10) or later
 use scripting additions
 
 tell application id "com.figure53.QLab.5" to tell front workspace
-	set AppleScript's text item delimiters to ", "
-	
-	(*
-	i just used this shit for testing purposes
-	set typeChange to "user"
-	set useUser to false
-	set userNumber to 5
-	set useList to true
-	set listNumber to 1
-	*)
-	
 	display dialog "What would you like to change?" with icon 1 buttons {"User", "Cue List", "Cancel"} default button "Cue List" cancel button "Cancel"
 	if button returned of result is "User" then
 		display dialog "Do you wish to specify a user?" with icon 1 buttons {"Yes", "No", "Cancel"} default button "No" cancel button "Cancel"
@@ -85,21 +74,21 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 				set successfulChange to false
 				
 				if typeChange is "User" then
-					--try
-					if item 2 of parameterValues is "no" then
-						set newValues to {"cue"}
-						set newValues to newValues & newUserData
-						set newValues to newValues & (items 3 through (count of parameterValues) of parameterValues)
-						--display dialog newValues as text
-						set successfulChange to true
-					else if item 2 of parameterValues is "yes" then
-						set newValues to {"cue"}
-						set newValues to newValues & newUserData
-						set newValues to newValues & (items 4 through (count of parameterValues) of parameterValues)
-						--display dialog newValues as text
-						set successfulChange to true
-					end if
-					--end try
+					try
+						if item 2 of parameterValues is "no" then
+							set newValues to {"cue"}
+							set newValues to newValues & newUserData
+							set newValues to newValues & (items 3 through (count of parameterValues) of parameterValues)
+							--display dialog newValues as text
+							set successfulChange to true
+						else if item 2 of parameterValues is "yes" then
+							set newValues to {"cue"}
+							set newValues to newValues & newUserData
+							set newValues to newValues & (items 4 through (count of parameterValues) of parameterValues)
+							--display dialog newValues as text
+							set successfulChange to true
+						end if
+					end try
 				else if typeChange is "CueList" then
 					set repeatSucceeded to false
 					repeat with x from 1 to count of parameterValues
@@ -115,22 +104,15 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 							set x to x + 1
 						end if
 					end repeat
-					if repeatSucceeded then
-						set newValues to (items 1 through (cueCommandIndex - 1) of parameterValues)
-						set newValues to newValues & newListData
-						set newValues to newValues & (item (count of parameterValues) of parameterValues)
-						--display dialog newValues as text
-						set successfulChange to true
-					end if
-					(*
-					if parameterValues contains "fireInList" then
-						--display dialog "it works bitch!"
-					else if parameterValues contains "fire" then
-						--display dialog "Looks like just fire"
-					end if*)
-					--try
-					
-					--end try
+					try
+						if repeatSucceeded then
+							set newValues to (items 1 through (cueCommandIndex - 1) of parameterValues)
+							set newValues to newValues & newListData
+							set newValues to newValues & (item (count of parameterValues) of parameterValues)
+							--display dialog newValues as text
+							set successfulChange to true
+						end if
+					end try
 				end if
 				
 				if successfulChange then
