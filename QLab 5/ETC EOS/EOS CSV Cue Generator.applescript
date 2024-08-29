@@ -605,6 +605,6 @@ v5.0.11 Changed the version numbering just to annoy people, and made changes to 
 11/8/2023 - Added variables to set a color for new cues at the top of the script. Added logic for the handling of part cues.
 1/23/2024 - Added the ability to copy scene attributes from EOS cues.
 8/28/2024 - Confirmed still working with the release of 3.2.9, which updated the way CSV files are handled. Added logic to verify column headers since I had a few mistakes in my scene reading logic. Or maybe they changed the headers at some point.
-	I'm too lazy to check. Either way, this will make sure the right columns are being read. Probably should have done this from the start.
+	I'm too lazy to check. Either way, this will make sure the right columns are being read. Probably should have done this from the start. I also now copy notes from EOS cues to QLab cues, if there are any.
 
 *)
