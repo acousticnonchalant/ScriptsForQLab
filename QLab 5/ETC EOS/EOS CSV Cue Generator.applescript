@@ -1,7 +1,7 @@
 (* 
 
-1/23/2024
-Tested with EOS 3.2.5 and QLab v5.3.3 on macOS Sonoma 14.1.1
+8/28/2024
+Tested with EOS 3.2.9 and QLab v5.4.4 on macOS Sonoma 14.6.0
 
 Please refer to my repository for any updates or to report problems you may find
 https://github.com/acousticnonchalant/ScriptsForQLab
@@ -25,6 +25,7 @@ File Name: QLab 5 - ETC EOS - EOS CSV Cue Generator
 Written by Chase Elison 
 chase@chaseelison.com
 
+It takes a village, and I definitely did not write 100% of this from scratch.
 Script originated from Jack Baxter. Thanks!
 Snippets of code from Taylor Glad, including the code to create a new cue list. Thanks!
 CSV Reading Functionality from Nigel Garvey - https://macscripter.net/viewtopic.php?pid=125444#p125444
@@ -201,6 +202,11 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 		set sceneMemoColor to "Cyan"
 	end if
 	
+	set ExcelStartRow to 0
+	set testRows to 1
+	
+	-- Defaults
+	
 	set EOSCueLabelColumn to 7
 	set EOSCueListColumn to 3
 	set EOSCueNumberColumn to 4
@@ -208,10 +214,49 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 	set EOSCueLinkColumn to 25
 	set EOSTargetTypeColumn to 2
 	set EOSPartColumn to 6
-	set EOSSceneColumn to 33
-	set EOSSceneEndColumn to 34
-	set ExcelStartRow to 4
+	set EOSSceneColumn to 34
+	set EOSSceneEndColumn to 35
 	
+	repeat until testRows is greater than 20
+		if item 1 of item testRows of csvFile is "TARGET_TYPE" then
+			set ExcelStartRow to testRows + 1
+			set HeaderRow to testRows
+			exit repeat
+		else
+			set testRows to testRows + 1
+		end if
+	end repeat
+	
+	set eachColumn to 1
+	repeat until eachColumn is greater than (count of item HeaderRow of csvFile)
+		if (item eachColumn of item HeaderRow of csvFile) is equal to "TARGET_TYPE_AS_TEXT" then
+			set EOSTargetTypeColumn to eachColumn
+		else if (item eachColumn of item HeaderRow of csvFile) is equal to "TARGET_LIST_NUMBER" then
+			set EOSCueListColumn to eachColumn
+		else if (item eachColumn of item HeaderRow of csvFile) is equal to "TARGET_ID" then
+			set EOSCueNumberColumn to eachColumn
+		else if (item eachColumn of item HeaderRow of csvFile) is equal to "PART_NUMBER" then
+			set EOSPartColumn to eachColumn
+		else if (item eachColumn of item HeaderRow of csvFile) is equal to "LABEL" then
+			set EOSCueLabelColumn to eachColumn
+		else if (item eachColumn of item HeaderRow of csvFile) is equal to "FOLLOW" then
+			set EOSAutoFollowColumn to eachColumn
+		else if (item eachColumn of item HeaderRow of csvFile) is equal to "LINK" then
+			set EOSCueLinkColumn to eachColumn
+		else if (item eachColumn of item HeaderRow of csvFile) is equal to "CUE_NOTES" then
+			set EOSCueNotesColumn to eachColumn
+		else if (item eachColumn of item HeaderRow of csvFile) is equal to "SCENE_TEXT" then
+			set EOSSceneColumn to eachColumn
+		else if (item eachColumn of item HeaderRow of csvFile) is equal to "SCENE_END" then
+			set EOSSceneEndColumn to eachColumn
+		end if
+		set eachColumn to eachColumn + 1
+	end repeat
+	
+	if ExcelStartRow is 0 then
+		display dialog "Couldn't validate the CSV File."
+		return
+	end if
 	
 	set currentRow to ExcelStartRow
 	set eosRedCueCount to 0
@@ -281,7 +326,6 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 			end if
 			
 			--Check if EOS cue links to another cue
-			
 			if item EOSCueLinkColumn of item currentRow of csvFile is not "" then
 				set eosSpecialPrefixes to "(Link: " & cueNamePrefix & item EOSCueLinkColumn of item currentRow of csvFile & ") " & eosSpecialPrefixes
 				set qlabMakeCueRed to true
@@ -290,6 +334,12 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 			set qlabOSCCommand to "/eos/cue/" & eosCueList & "/" & eosCueNumber & "/fire" as string -- Not needed if using a proper V5 cue
 			
 			
+			--Check if the cue has notes
+			if item EOSCueNotesColumn of item currentRow of csvFile is not "" then
+				set qlabCueNotes to item EOSCueNotesColumn of item currentRow of csvFile
+			else
+				set qlabCueNotes to ""
+			end if
 			
 			if qlabCueType is "Network" then
 				make type "network"
@@ -350,6 +400,7 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 			set pre wait of qlabNewCue to 0
 			set duration of qlabNewCue to 0
 			set post wait of qlabNewCue to 0
+			set notes of qlabNewCue to qlabCueNotes
 			if qlabCueProblems is 0 then
 				set q name of qlabNewCue to qlabCueName
 			end if
@@ -553,5 +604,7 @@ v5.0.11 Changed the version numbering just to annoy people, and made changes to 
 9/17/2023 - Bug was found in the version check logic. It was only checking for if it IS .1.x not is greater than or equal to .1.x. Probably got lost in translation to Github.
 11/8/2023 - Added variables to set a color for new cues at the top of the script. Added logic for the handling of part cues.
 1/23/2024 - Added the ability to copy scene attributes from EOS cues.
+8/28/2024 - Confirmed still working with the release of 3.2.9, which updated the way CSV files are handled. Added logic to verify column headers since I had a few mistakes in my scene reading logic. Or maybe they changed the headers at some point.
+	I'm too lazy to check. Either way, this will make sure the right columns are being read. Probably should have done this from the start.
 
 *)
