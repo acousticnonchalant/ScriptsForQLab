@@ -1,7 +1,7 @@
 (* 
 
-8/28/2024
-Tested with EOS 3.2.9 and QLab v5.4.4 on macOS Sonoma 14.6.0
+11/10/2024
+Tested with EOS 3.2.9 and QLab v5.4.7 on macOS Sonoma 14.7.0
 
 Please refer to my repository for any updates or to report problems you may find
 https://github.com/acousticnonchalant/ScriptsForQLab
@@ -32,11 +32,13 @@ CSV Reading Functionality from Nigel Garvey - https://macscripter.net/viewtopic.
 
 *)
 
-set qlabFirstColor to "" -- Leave as "" if you want no color
+set qlabFirstColor to "Forest" -- Leave as "" if you want no color
 set qlabUseSecondColor to false
 set qlabSecondColor to "" -- Leave as "" if you want no color
 
---NEW as of QLab 5.0.9 - You now need to specify whether or not you want to use a user. Do so here.
+set eosFilterCueLists to {} --If you want to only use specific cue lists, set those in the brackets. Use commas to separate the numbers. I.e. {2,3} would only use cue lists 2 and 3.
+set doNotPromptFilters to false --Be warned: It can cause confusion if you remove the prompt. If you're sure, go for it, but know that it might confuse some later if it only works for certain cue lists.
+
 --If the boolean is false, the second variable does not matter.
 set eosSpecifyUser to false
 set eosUser to 5
@@ -86,11 +88,10 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 	if button returned of result = "Yes" then
 		set csvFilePrompt to choose file with prompt "Please select an image to process:" of type {"csv"}
 	else
-		
 		display dialog "On your EOS console, go to the menu and choose File > Export > CSV. Choose a location to save the file (Either on a flash drive, or somewhere you can access the file over the network).
-		
+					
 Deselect all of the options, and select CUES only to be exported.
-		
+					
 Once you have the file on your Mac, run this script and select the file :)" with title "EOS CSV Cue Generator" with icon 1 buttons "OK" default button "OK"
 		return
 	end if
@@ -205,6 +206,9 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 	set ExcelStartRow to 0
 	set testRows to 1
 	
+	set promptedUserForFilter to false
+	set totalCuesGenerated to 0
+	
 	-- Defaults
 	
 	set EOSCueLabelColumn to 7
@@ -273,7 +277,7 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 		end if
 		--Now make sure it isn't a part
 		if item EOSPartColumn of item currentRow of csvFile is not "" then
-			(* --this got a little too complicated. I'm just gonna make it red.
+			(* --this got a little too complicated. I'm just gonna make it red. Maybe someday... But I run into this rarely. Reach out if you're reading this and want this!
 			set checkLastCue to last item of (selected as list)
 			set checkCueNumber to (count of items of parameter values of checkLastCue)
 			set checkCurrentCue to item EOSCueNumberColumn of item currentRow of csvFile
@@ -284,6 +288,7 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 			set qlabMakeCueRed to true
 			set eosSpecialPrefixes to "(PART " & item EOSPartColumn of item currentRow of csvFile & ") "
 		end if
+		
 		if doThisRow then
 			
 			set eosScene to item EOSSceneColumn of item currentRow of csvFile
@@ -307,6 +312,39 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 				set eosSpecifyCueList to true
 				set eosCueListPrefix to eosCueList & "/"
 			end if
+			
+			--And now lets see if we're filtering cue lists
+			--try
+			if (count of eosFilterCueLists) is not 0 then
+				set validFilters to false
+				repeat with eachFilterCueList in eosFilterCueLists
+					if eachFilterCueList as text is eosCueList then
+						set validFilters to true
+					end if
+				end repeat
+				if validFilters is false and doNotPromptFilters is false then
+					--Row does not pass filters.
+					if promptedUserForFilter is not true then
+						display dialog "There is a cue list filter active in the beginning of the script. The script has encountered a cue in cue list " & eosCueList & ", which is set to be filtered out. Would you like to remove the filter, or continue?" with icon 1 buttons {"Remove Filter", "Continue"} default button "Continue"
+						set filterChoice to button returned of result
+						if filterChoice is "Continue" then
+							set promptedUserForFilter to true
+						else if filterChoice is "Remove Filter" then
+							set promptedUserForFilter to true
+							set eosFilterCueLists to {}
+							set validFilters to true
+						end if
+					end if
+				end if
+				if validFilters is false then
+					set doThisRow to false
+				end if
+			end if
+			--end try
+			
+		end if
+		
+		if doThisRow then
 			
 			--Check that the EOS Cue number is not a "point" cue and make the value an integer if not
 			set eosCueNumber to item EOSCueNumberColumn of item currentRow of csvFile
@@ -382,6 +420,7 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 				--
 				-- END EOS Cue Generator Snippet
 				--
+				set totalCuesGenerated to totalCuesGenerated + 1
 			else if qlabCueType is "MIDI" then
 				make type "midi"
 				set qlabNewCue to last item of (selected as list)
@@ -396,6 +435,7 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 					set q_list of qlabNewCue to ""
 				end if
 				set q_number of qlabNewCue to eosCueNumber
+				set totalCuesGenerated to totalCuesGenerated + 1
 			end if
 			set pre wait of qlabNewCue to 0
 			set duration of qlabNewCue to 0
@@ -449,6 +489,21 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 		end if
 		set currentRow to currentRow + 1
 	end repeat
+	if totalCuesGenerated is 0 then
+		display dialog "The end of the file has been reached, and 0 cues were found. Make sure you choose the correct file, and make sure you have exported it correctly (Instructions will follow in the next message box).
+
+Also, make sure near the beginning of the script to check cue list filters. If you don't want any filters, make sure the line reads \"set eosFilterCueLists to {}\"." with icon 1
+		
+		(*set eosFilterCueLists to {} --If you want to only use specific cue lists, set those in the brackets. Use commas to separate the numbers. I.e. {2,3} would only use cue lists 2 and 3.
+set doNotPromptFilters to false --Be warned: It can cause confusion if you remove the prompt. If you're sure, go for it, but know that it might confuse some later if it only works for certain cue lists.
+*)
+		display dialog "On your EOS console, go to the menu and choose File > Export > CSV. Choose a location to save the file (Either on a flash drive, or somewhere you can access the file over the network).
+			
+Deselect all of the options, and select CUES only to be exported.
+			
+Once you have the file on your Mac, run this script and select the file :)" with title "EOS CSV Cue Generator" with icon 1 buttons "OK" default button "OK"
+		return
+	end if
 	if eosRedCueCount > 0 then
 		display dialog "There were " & eosRedCueCount & " cues that either auto-follow or have links. They have been colored red. Double check with lighting designer to see what to do about these cues. :)" with title "EOS CSV Cue Generator" with icon 1 buttons "OK" default button "OK"
 	end if
@@ -469,6 +524,7 @@ end tell
    By implication, spaces (or anything else!) outside the quotes of quoted fields are not allowed.
        
    No other variations are currently supported. *)
+
 
 on csvToList(csvText, implementation)
 	-- The 'implementation' parameter is a record with optional properties specifying the field separator character and/or trimming state. The defaults are: {separator:",", trimming:false}.
@@ -606,5 +662,6 @@ v5.0.11 Changed the version numbering just to annoy people, and made changes to 
 1/23/2024 - Added the ability to copy scene attributes from EOS cues.
 8/28/2024 - Confirmed still working with the release of 3.2.9, which updated the way CSV files are handled. Added logic to verify column headers since I had a few mistakes in my scene reading logic. Or maybe they changed the headers at some point.
 	I'm too lazy to check. Either way, this will make sure the right columns are being read. Probably should have done this from the start. I also now copy notes from EOS cues to QLab cues, if there are any.
+11/10/2024 - Added logic to filter so you are only generating cues in specified cue lists if desired.
 
 *)
