@@ -1,7 +1,7 @@
 (* 
 
-11/8/2023
-Tested with EOS 3.2.5 and QLab v5.3 on macOS Ventura 13.6.1
+1/19/2025
+Tested with EOS 3.2.10 and QLab v5.4.8 on macOS Sequoia 15.2
 
 Please refer to my repository for any updates or to report problems you may find
 https://github.com/acousticnonchalant/ScriptsForQLab
@@ -19,7 +19,7 @@ chase@chaseelison.com
 
 *)
 
-set qlabFirstColor to "" -- Leave as "" if you want no color
+set qlabFirstColor to "Forest" -- Leave as "" if you want no color
 set qlabUseSecondColor to false
 set qlabSecondColor to "" -- Leave as "" if you want no color
 
@@ -33,6 +33,11 @@ set qlabCueType to "" -- One of: {"Network", "MIDI"}. Use "" to prompt.
 set qlabCuePatch to 0 -- The patch number, for either Network or MIDI. Use 0 to prompt.
 set qlabMidiDeviceID to -1 -- This doesn't matter if you are making a network cue. Use -1 to prompt.
 set cueNamePrefix to "" -- What the cue name says before the number. Use "" to prompt.
+
+set useSpacerBlocks to true -- Set this to true if you would like spacers between a number of cues
+set spacerDistance to 50 -- Change this to how often you would like a spacer block
+-- (This is helpful if you are scrolling through a long list of cue numbers)
+
 
 tell application id "com.figure53.QLab.5" to tell front workspace
 	if edit mode is false then return
@@ -212,6 +217,7 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 	
 	set currentCueNumber to firstCueNumber
 	repeat while (currentCueNumber is less than or equal to lastCueNumber) and (currentCueNumber is greater than or equal to firstCueNumber) --in case a silly goose tries a negative increment
+		
 		if currentCueNumber as integer is currentCueNumber then
 			set eosCueNumber to currentCueNumber as integer as text
 		else
@@ -303,6 +309,22 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 		end try
 		set q number of qlabNewCue to ""
 		
+		if useSpacerBlocks then
+			if currentCueNumber mod spacerDistance is 0 then
+				repeat with newMemoCue from 1 to 3
+					make type "Memo"
+					set thisMemoCue to last item of (selected as list)
+					if qlabFirstColor is in {"yellow", "Yellow"} then
+						set q color of thisMemoCue to "Red"
+					else
+						set q color of thisMemoCue to "Yellow"
+					end if
+					set q number of thisMemoCue to ""
+					set continue mode of thisMemoCue to do_not_continue
+				end repeat
+			end if
+		end if
+		
 		set currentCueNumber to currentCueNumber + increment
 	end repeat
 end tell
@@ -312,5 +334,6 @@ end tell
 Changes-
 
 11/8/2023 - Added variable to set a color for new cues at the top of the script.
+1/19/2025 - Added spacer blocks to help navigate hundreds of cues faster and easier.
 
 *)
