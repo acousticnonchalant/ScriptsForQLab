@@ -1,6 +1,6 @@
 (*
 
-1/8/2025
+5/7/2025
 Tested with QLab v5.4.8 on macOS Sonoma 14.7.2
 
 Please refer to my repository for any updates or to report problems you may find
