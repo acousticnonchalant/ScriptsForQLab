@@ -22,6 +22,7 @@ tell application id "com.figure53.QLab.5" to tell front workspace
 	--Following line added 5/7/2025 because otherwise the script groups all the cues ruining the continue mode.
 	set selected to item 1 of theSelection
 	repeat with eachCue in theSelection
+		set selected to eachCue --Added this so that cues wouldn't be moved all the way to the bottom of the cue stack
 		set continueMode to continue mode of eachCue
 		make type "Group"
 		set groupCue to last item of (selected as list)
@@ -40,5 +41,6 @@ end tell
 
 Changes-
 5/7/2025 - Changed the order of operations because the script would inadvertently wipe out all cues' continue mode before.
+6/1/2025 - Script now selects the cue it is set to group first, so that it stays in the existing group hierarchy and won't accidentally move cues to unwanted parts of the cue stack.
 
 *)
